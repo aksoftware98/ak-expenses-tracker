@@ -5,6 +5,10 @@ VisualStudioVersion = 17.3.32519.111
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AKExpnesesTracker.Server.Functions", "AKExpnesesTracker.Server.Functions\AKExpnesesTracker.Server.Functions.csproj", "{73B9A11F-70E3-430C-B54D-14F1C35379C0}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Server", "Server", "{A239D749-18FE-40A4-B73E-44274AE4920F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client", "Client", "{034412DE-BB8D-440E-8B84-3CFEF7476917}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,6 +22,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{73B9A11F-70E3-430C-B54D-14F1C35379C0} = {A239D749-18FE-40A4-B73E-44274AE4920F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {95D1ABBC-1FBE-44C3-B28C-ACF27482A2EC}
