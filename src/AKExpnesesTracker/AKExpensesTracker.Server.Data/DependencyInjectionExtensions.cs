@@ -16,5 +16,9 @@ namespace AKExpensesTracker.Server.Data
             services.AddSingleton(sp => new CosmosClient(connectionString));
         }
 
+        public static void AddRepositories(this IServiceCollection services)
+        {
+            services.AddScoped<IWalletsRepository, CosmosWalletsRepository>();
+        }
     }
 }
