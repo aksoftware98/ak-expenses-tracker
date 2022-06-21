@@ -16,8 +16,8 @@ namespace AKEpensesTracker.Server.Functions
         {
             var config = builder.GetContext().Configuration;
 
-            builder.Services.AddCosmosDbClient("CosmosDbConnectionString");
-
+            builder.Services.AddCosmosDbClient(config["CosmosDbConnectionString"]);
+            builder.Services.AddRepositories();
         }
     }
 }
