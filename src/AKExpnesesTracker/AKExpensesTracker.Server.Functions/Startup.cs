@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AKExpensesTracker.Server.Data;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,7 +14,10 @@ namespace AKEpensesTracker.Server.Functions
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
-            
+            var config = builder.GetContext().Configuration;
+
+            builder.Services.AddCosmosDbClient("CosmosDbConnectionString");
+
         }
     }
 }
