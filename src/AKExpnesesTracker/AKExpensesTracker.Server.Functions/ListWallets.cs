@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 
-namespace AKExpnesesTracker.Server.Functions
+namespace AKEpensesTracker.Server.Functions
 {
     public class ListWallets
     {

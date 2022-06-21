@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 
-[assembly: FunctionsStartup(typeof(AKExpnesesTracker.Server.Functions.Startup))]
-namespace AKExpnesesTracker.Server.Functions
+[assembly: FunctionsStartup(typeof(AKEpensesTracker.Server.Functions.Startup))]
+namespace AKEpensesTracker.Server.Functions
 {
     public class Startup : FunctionsStartup
     {
