@@ -1,6 +1,7 @@
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
+using AKExpensesTracker.Server.Data.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -16,10 +17,12 @@ namespace AKEpensesTracker.Server.Functions
     public class ListWallets
     {
         private readonly ILogger<ListWallets> _logger;
-
-        public ListWallets(ILogger<ListWallets> log)
+        private readonly IWalletsRepository _walletsRepo;
+        public ListWallets(ILogger<ListWallets> log,
+                           IWalletsRepository walletsRepo)
         {
             _logger = log;
+            _walletsRepo = walletsRepo;
         }
 
         [FunctionName("ListWallets")]
@@ -30,19 +33,11 @@ namespace AKEpensesTracker.Server.Functions
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req)
         {
-            _logger.LogInformation("C# HTTP trigger function processed a request.");
+            var userId = "userId";
 
-            string name = req.Query["name"];
+            var wallets = await _walletsRepo.ListByUserIdAsync(userId);
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            name = name ?? data?.name;
-
-            string responseMessage = string.IsNullOrEmpty(name)
-                ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
-                : $"Hello, {name}. This HTTP triggered function executed successfully.";
-           
-            return new OkObjectResult(responseMessage);
+            return new OkObjectResult(wallets); // 200 
         }
     }
 }
