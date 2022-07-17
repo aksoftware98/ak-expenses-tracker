@@ -9,7 +9,6 @@
   <ItemGroup>
     <Folder Include="DTOs\" />
     <Folder Include="Validators\" />
-    <Folder Include="Responses\" />
   </ItemGroup>
 
 </Project>
