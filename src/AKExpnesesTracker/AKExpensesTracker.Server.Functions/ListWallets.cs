@@ -1,7 +1,10 @@
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AKExpensesTracker.Server.Data.Interfaces;
+using AKExpensesTracker.Server.Data.Models;
+using AKExpensesTracker.Shared.Responses;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -37,7 +40,7 @@ namespace AKEpensesTracker.Server.Functions
 
             var wallets = await _walletsRepo.ListByUserIdAsync(userId);
 
-            return new OkObjectResult(wallets); // 200 
+            return new OkObjectResult(new ApiSuccessResponse<Wallet>($"{wallets.Count()} have been retrieved", wallets)); // 200 
         }
     }
 }

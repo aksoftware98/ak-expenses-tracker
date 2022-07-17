@@ -39,6 +39,12 @@ public class Wallet
     [JsonPropertyName("username")]
     public string? Username { get; set; }
 
+    [JsonPropertyName("creationDate")]
+    public DateTime CreationDate { get; set; }
+
+    [JsonPropertyName("modificationDate")]
+    public DateTime ModificationDate { get; set; }
+
 
     private WalletType? GetWalletTypeFromString(string? typeName)
     {
