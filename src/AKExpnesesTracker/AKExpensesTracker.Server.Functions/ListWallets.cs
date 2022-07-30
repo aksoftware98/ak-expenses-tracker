@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading.Tasks;
 using AKExpensesTracker.Server.Data.Interfaces;
 using AKExpensesTracker.Server.Data.Models;
+using AKExpensesTracker.Shared.DTOs;
 using AKExpensesTracker.Shared.Responses;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -40,8 +41,15 @@ namespace AKEpensesTracker.Server.Functions
             var userId = "userId";
 
             var wallets = await _walletsRepo.ListByUserIdAsync(userId);
-
-            return new OkObjectResult(new ApiSuccessResponse<IEnumerable<Wallet>>($"{wallets.Count()} have been retrieved", wallets)); // 200 
+            var result = wallets.Select(w => new WalletSummaryDto
+            {
+                Id = w.Id,
+                Name = w.Name,
+                Currency = w.Currency,
+                Balacne = w.Balance,
+                Type = w.Type.Value
+            });
+            return new OkObjectResult(new ApiSuccessResponse<IEnumerable<WalletSummaryDto>>($"{wallets.Count()} have been retrieved", result)); // 200 
         }
     }
 }

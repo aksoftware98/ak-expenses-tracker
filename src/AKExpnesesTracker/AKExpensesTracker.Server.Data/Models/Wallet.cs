@@ -1,59 +1,58 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
 
 namespace AKExpensesTracker.Server.Data.Models;
 
 public class Wallet
 {
-    [JsonPropertyName("id")]
+    [JsonProperty("id")]
     public string? Id { get; set; }
 
-    [JsonPropertyName("type")]
-    public string? TypeName { get; set; }
+    [JsonProperty("type")]
+    public string? WalletType { get; set; }
 
-    public WalletType? Type => GetWalletTypeFromString(TypeName);
+    public WalletType? Type => GetWalletTypeFromString(WalletType);
 
-    [JsonPropertyName("bankName")]
+    [JsonProperty("bankName")]
     public string? BankName { get; set; }
 
-    [JsonPropertyName("name")]
+    [JsonProperty("name")]
     public string? Name { get; set; }
 
-    [JsonPropertyName("iban")]
+    [JsonProperty("iban")]
     public string? Iban { get; set; }
 
-    [JsonPropertyName("accountType")]
+    [JsonProperty("accountType")]
     public string? AccountType { get; set; }
 
-    [JsonPropertyName("userId")]
+    [JsonProperty("userId")]
     public string? UserId { get; set; }
 
-    [JsonPropertyName("swift")]
+    [JsonProperty("swift")]
     public string? Swift { get; set; }
 
-    [JsonPropertyName("balance")]
+    [JsonProperty("balance")]
     public decimal Balance { get; set; }
 
-    [JsonPropertyName("currency")]
+    [JsonProperty("currency")]
     public string? Currency { get; set; }
 
-    [JsonPropertyName("username")]
+    [JsonProperty("username")]
     public string? Username { get; set; }
 
-    [JsonPropertyName("creationDate")]
+    [JsonProperty("creationDate")]
     public DateTime CreationDate { get; set; }
 
-    [JsonPropertyName("modificationDate")]
+    [JsonProperty("modificationDate")]
     public DateTime ModificationDate { get; set; }
-
 
     private WalletType? GetWalletTypeFromString(string? typeName)
     {
         return typeName switch
         {
-            "Bank" => WalletType.Bank,
-            "PayPal" => WalletType.PayPal,
-            "Cash" => WalletType.Cash,
-            _ => WalletType.Other
+            "Bank" => Shared.Enums.WalletType.Bank,
+            "PayPal" => Shared.Enums.WalletType.PayPal,
+            "Cash" => Shared.Enums.WalletType.Cash,
+            _ => Shared.Enums.WalletType.Other
         };
     }
 
