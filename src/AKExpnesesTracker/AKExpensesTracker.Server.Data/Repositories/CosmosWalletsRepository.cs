@@ -12,6 +12,7 @@ public class CosmosWalletsRepository : IWalletsRepository
         _db = db;
     }
 
+    #region List
     public async Task<IEnumerable<Wallet>> ListByUserIdAsync(string userId)
     {
         if (string.IsNullOrWhiteSpace(userId))
@@ -28,4 +29,28 @@ public class CosmosWalletsRepository : IWalletsRepository
 
         return result.Resource;
     }
+    #endregion
+
+    #region Get By Id 
+    public async Task<Wallet?> GetByIdAsync(string walletId, string userId)
+    {
+        if (string.IsNullOrWhiteSpace(walletId))
+            throw new ArgumentNullException(nameof(walletId));
+        if (string.IsNullOrWhiteSpace(userId))
+            throw new ArgumentNullException(nameof(userId));
+
+        var queryText = $"SELECT * FROM c WHERE c.id = @id AND c.userId = @userId";
+        var query = new QueryDefinition(queryText)
+                            .WithParameter("@id", walletId)
+                            .WithParameter("@userId", userId);
+
+        // TODO: Resolve the name of the database 
+        var container = _db.GetContainer("ExpnesesTrackerDb", "Wallets");
+
+        var iterator = container.GetItemQueryIterator<Wallet>(query);
+        var result = await iterator.ReadNextAsync();
+
+        return result.Resource.FirstOrDefault(); 
+    }
+    #endregion 
 }
