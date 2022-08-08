@@ -66,7 +66,7 @@ public class CosmosWalletsRepository : IWalletsRepository
     }
     #endregion
 
-    #region Create 
+    #region Update 
     public async Task UpdateAsync(Wallet wallet)
     {
         if (wallet == null)
