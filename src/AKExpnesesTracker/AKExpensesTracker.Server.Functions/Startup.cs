@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AKExpensesTracker.Server.Data;
+using AKExpensesTracker.Server.Functions.Services;
 using AKExpensesTracker.Shared;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +21,8 @@ namespace AKEpensesTracker.Server.Functions
             builder.Services.AddCosmosDbClient(config["CosmosDbConnectionString"]);
             builder.Services.AddRepositories();
             builder.Services.AddValidators();
+
+            builder.Services.AddScoped<IStorageService>(sp => new AzureBlobStorageService(config["AzureWebJobsStorage"]));
         }
     }
 }
