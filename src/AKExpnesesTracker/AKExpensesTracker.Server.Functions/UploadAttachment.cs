@@ -47,7 +47,7 @@ namespace AKExpensesTracker.Server.Functions
             if (file == null)
                 return new BadRequestObjectResult(new ApiErrorResponse("File is required"));
 
-            // TODO: Call the Microsoft Conputer Vision API to make sure it's a document image
+            // TODO: [Optional] Call the Microsoft Conputer Vision API to make sure it's a document image
 
             // Save the file and retrieve the URL 
             string url = string.Empty; 
