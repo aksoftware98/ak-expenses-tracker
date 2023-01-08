@@ -32,10 +32,7 @@ public class AzureBlobStorageService : IStorageService
 
         // Retrieve and validate the extension 
         var extension = Path.GetExtension(fileName).ToLower(); // 34534.png => .png 
-        var validExtensions = new[] { ".png", ".jpg", ".jpeg", ".gif" };
-        if (!validExtensions.Contains(extension))
-            throw new NotSupportedException($"The extension {extension} is not supported");
-
+       
         // Generate a new uniqe name 
         var nameOnly = Path.GetFileNameWithoutExtension(fileName); // 34534.png => 34534
         var newFileName = $"{nameOnly}-{Guid.NewGuid()}{extension}"; // 34534-345345345345.png
@@ -48,9 +45,7 @@ public class AzureBlobStorageService : IStorageService
                 ContentType = GetContentType(extension)
             }
         });
-
-
-
+		
         return blob.Uri.AbsoluteUri;
     }
 
