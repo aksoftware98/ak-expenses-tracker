@@ -5,5 +5,7 @@
         Task AddAsync(Attachment attachment);
 
         Task<IEnumerable<Attachment>> GetUnusedAttachmentsAsync(int hours);
-    }
+
+		Task DeleteAsync(string id, string uploadedByUserId);
+	}
 }

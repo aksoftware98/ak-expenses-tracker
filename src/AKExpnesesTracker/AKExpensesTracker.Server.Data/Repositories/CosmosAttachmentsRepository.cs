@@ -47,8 +47,21 @@ namespace AKExpensesTracker.Server.Data.Repositories
 				result = await iterator.ReadNextAsync();
 				attachments.AddRange(result.Resource);
 			}
-
+			
 			return attachments;
+
+		}
+
+		public async Task DeleteAsync(string id, string uploadedByUserId)
+		{
+			if (string.IsNullOrWhiteSpace(id))
+				throw new ArgumentNullException(nameof(id));
+
+			if (string.IsNullOrWhiteSpace(uploadedByUserId))
+				throw new ArgumentNullException(nameof(uploadedByUserId));
+			
+			var container = _db.GetContainer(DATABASE_NAME, CONTAINER_NAME);
+			await container.DeleteItemAsync<Attachment>(id, new PartitionKey(uploadedByUserId));
 		}
 	}
 }
