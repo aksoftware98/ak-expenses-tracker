@@ -4,7 +4,7 @@ public class CosmosWalletsRepository : IWalletsRepository
 {
 
     private readonly CosmosClient _db;
-    private const string DATABASE_NAME = "ExpnesesTrackerDb";
+    private const string DATABASE_NAME = "ExpensesTrackerDb";
     private const string CONTAINER_NAME = "Wallets";
 
     public CosmosWalletsRepository(CosmosClient db)
@@ -45,7 +45,7 @@ public class CosmosWalletsRepository : IWalletsRepository
                             .WithParameter("@userId", userId);
 
         // TODO: Resolve the name of the database 
-        var container = _db.GetContainer("ExpnesesTrackerDb", "Wallets");
+        var container = _db.GetContainer(DATABASE_NAME, CONTAINER_NAME);
 
         var iterator = container.GetItemQueryIterator<Wallet>(query);
         var result = await iterator.ReadNextAsync();

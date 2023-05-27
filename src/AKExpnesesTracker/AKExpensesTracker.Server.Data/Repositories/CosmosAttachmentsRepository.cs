@@ -10,7 +10,7 @@ namespace AKExpensesTracker.Server.Data.Repositories
 	public class CosmosAttachmentsRepository : IAttachmentsRepository
 	{
 		private readonly CosmosClient _db;
-		private const string DATABASE_NAME = "ExpnesesTrackerDb";
+		private const string DATABASE_NAME = "ExpensesTrackerDb";
 		private const string CONTAINER_NAME = "Attachments";
 
 		public CosmosAttachmentsRepository(CosmosClient db)
