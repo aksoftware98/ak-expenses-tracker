@@ -2,44 +2,107 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json; 
 using System.Threading.Tasks;
 
 namespace AKExpensesTracker.Server.Data.Models
 {
 	public class Transaction
 	{
-		[JsonPropertyName("id")]
-		public string Id { get; set; }
 
-		[JsonPropertyName("description")]
-		public string? Description { get; set; }
+        public Transaction()
+        {
+			Id = Guid.NewGuid().ToString();
+			CreationDate = DateTime.UtcNow;
+			UserId = string.Empty;
+			UserIdYear = string.Empty;
+			Category = string.Empty;
+			WalletId = string.Empty;
+        }
 
-		[JsonPropertyName("isIncome")]
-		public bool IsIncome { get; set; }
+        [JsonProperty("id")]
+		public string Id { get; private set; }
 
-		[JsonPropertyName("amount")]
-		public decimal Amount { get; set; }
+		[JsonProperty("description")]
+		public string? Description { get; private set; }
 
-		[JsonPropertyName("creationDate")]
-		public DateTime CreationDate { get; set; }
+		[JsonProperty("isIncome")]
+		public bool IsIncome { get; private set; }
 
-		[JsonPropertyName("modificationDate")]
-		public DateTime? ModificationDate { get; set; }
+		[JsonProperty("amount")]
+		public decimal Amount { get; private set; }
 
-		[JsonPropertyName("category")]
-		public string Category { get; set; }
+		[JsonProperty("creationDate")]
+		public DateTime CreationDate { get; private set; }
 
-		[JsonPropertyName("tags")]
-		public string[]? Tags { get; set; }
+		[JsonProperty("modificationDate")]
+		public DateTime? ModificationDate { get; private set; }
 
-		[JsonPropertyName("attachments")]
-		public string[]? Attachments { get; set; }
+		[JsonProperty("category")]
+		public string Category { get; private set; }
 
-		[JsonPropertyName("userId")]
-		public string UserId { get; set; }
+		[JsonProperty("tags")]
+		public string[]? Tags { get; private set; }
 
-		[JsonPropertyName("userIdYear")]
-		public string UserIdYear { get; set; }
+		[JsonProperty("attachments")]
+		public string[]? Attachments { get; private set; }
+
+		private string _userId = string.Empty; 
+		[JsonProperty("userId")]
+		public string UserId
+		{
+			get => _userId; 
+			private set
+			{
+				_userId = value; 
+				UserIdYear = $"{_userId}-{CreationDate.Year}";
+			}
+		}
+
+		[JsonProperty("userIdYear")]
+		public string UserIdYear { get; private set; } // 333333-2023
+
+		[JsonProperty("walletId")]
+		public string WalletId { get; private set; }
+
+		public static Transaction Create(string walletId, 
+										 string userId, 
+										 decimal amount,
+										 string category,
+										 bool isIncome,
+										 string? description = null,
+										 string[]? tags = null,
+										 string[]? attachments = null)
+		{
+			return new Transaction
+			{
+				WalletId = walletId,
+				UserId = userId,
+				Amount = amount,
+				Category = category,
+				IsIncome = isIncome,
+				Description = description,
+				Tags = tags,
+				Attachments = attachments,
+				ModificationDate = DateTime.UtcNow
+			};
+		}
+
+		public void Update(bool isIncome,
+						   decimal amount,
+						   string category,
+						   string? description = null,
+						   string[]? tags = null,
+						   string[]? attachments = null)
+		{
+			IsIncome = isIncome;
+			Amount = amount;
+			Category = category;
+			Description = description;
+			Tags = tags;
+			Attachments = attachments;
+			ModificationDate = DateTime.UtcNow;
+		}
+
 	}
 }
