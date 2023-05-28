@@ -1,0 +1,6 @@
+# Create Transaction 
+POST http://localhost:7155/api/UpsertTransaction
+
+{
+
+}

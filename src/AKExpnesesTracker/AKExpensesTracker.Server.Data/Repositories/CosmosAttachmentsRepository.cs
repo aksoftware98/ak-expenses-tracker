@@ -63,5 +63,6 @@ namespace AKExpensesTracker.Server.Data.Repositories
 			var container = _db.GetContainer(DATABASE_NAME, CONTAINER_NAME);
 			await container.DeleteItemAsync<Attachment>(id, new PartitionKey(uploadedByUserId));
 		}
+
 	}
 }

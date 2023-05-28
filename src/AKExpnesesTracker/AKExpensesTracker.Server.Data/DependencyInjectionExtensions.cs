@@ -20,6 +20,7 @@ namespace AKExpensesTracker.Server.Data
         {
             services.AddScoped<IWalletsRepository, CosmosWalletsRepository>();
             services.AddScoped<IAttachmentsRepository, CosmosAttachmentsRepository>();
+            services.AddScoped<ITransactionsRepository, CosmosTransactionsRepository>();
         }
     }
 }

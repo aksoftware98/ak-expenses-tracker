@@ -1,4 +1,6 @@
-﻿namespace AKExpensesTracker.Server.Data.Repositories;
+﻿using AKExpensesTracker.Server.Data.Models;
+
+namespace AKExpensesTracker.Server.Data.Repositories;
 
 public class CosmosWalletsRepository : IWalletsRepository
 {
@@ -74,8 +76,18 @@ public class CosmosWalletsRepository : IWalletsRepository
 
         var container = _db.GetContainer(DATABASE_NAME, CONTAINER_NAME);
 
-        await container.ReplaceItemAsync(wallet, wallet.Id);
+        var result = await container.ReplaceItemAsync(wallet, wallet.Id);
     }
-    #endregion 
+	#endregion
 
+
+	public async Task UpdateWalletBalanceAsync(string walletId, string userId, decimal newBalance)
+	{
+		var container = _db.GetContainer(DATABASE_NAME, CONTAINER_NAME);
+		var patchOperations = new[]
+		{
+				PatchOperation.Replace("/balance", newBalance)
+			};
+		var result = await container.PatchItemAsync<Wallet>(walletId, new PartitionKey(userId), patchOperations);
+	}
 }

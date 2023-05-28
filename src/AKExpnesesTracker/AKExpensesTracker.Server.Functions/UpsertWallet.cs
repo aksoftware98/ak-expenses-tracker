@@ -93,7 +93,7 @@ namespace AKExpensesTracker.Server.Functions
             wallet.UserId = userId;
             wallet.Username = data.Username;
             wallet.WalletType = data.Type.ToString();
-
+            wallet.Balance = data.Balance;
             if (isAdd)
                 await _walletsRepo.CreateAsync(wallet);
             else

@@ -1,5 +1,5 @@
 @hostname=localhost
-@port=7172
+@port=7155
 @baseurl={{hostname}}:{{port}}
 
 # Get all wallets 
@@ -12,11 +12,13 @@ GET http://{{baseurl}}/api/wallets/1
 
 ###
 # Post wallet 
-POST http://{{baseurl}}/api/wallets
+PUT http://{{baseurl}}/api/UpsertWallet
 Content-Type: application/json
 
 {
     "name": "My Wallet",
     "description": "My Wallet Description",
-    "balance": 1000
+    "balance": 1000,
+    "currency": "EUR",
+    "type": 1
 }
