@@ -1,0 +1,22 @@
+@hostname=localhost
+@port=7172
+@baseurl={{hostname}}:{{port}}
+
+# Get all wallets 
+GET http://{{baseurl}}/api/wallets
+
+
+###
+# Get wallet by id
+GET http://{{baseurl}}/api/wallets/1
+
+###
+# Post wallet 
+POST http://{{baseurl}}/api/wallets
+Content-Type: application/json
+
+{
+    "name": "My Wallet",
+    "description": "My Wallet Description",
+    "balance": 1000
+}
