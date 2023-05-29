@@ -99,7 +99,7 @@ namespace AKExpensesTracker.Server.Functions
             else
                 await _walletsRepo.UpdateAsync(wallet);
 
-            // Set the auto genreated properties 
+            // Set the auto generated properties 
             data.Id = wallet.Id;
             data.CreationDate = wallet.CreationDate;
 
