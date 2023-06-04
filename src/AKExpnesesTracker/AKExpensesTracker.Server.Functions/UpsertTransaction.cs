@@ -1,10 +1,15 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AKExpensesTracker.Server.Data.Interfaces;
 using AKExpensesTracker.Server.Data.Models;
 using AKExpensesTracker.Shared.DTOs;
+using AKExpensesTracker.Shared.Responses;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -21,13 +26,19 @@ namespace AKExpensesTracker.Server.Functions
         private readonly ILogger<UpsertTransaction> _logger;
         private readonly ITransactionsRepository _transactionsRepo;
 		private readonly IWalletsRepository _walletsRepo;
+		private readonly IAttachmentsRepository _attachmentsRepo;
+		private readonly IValidator<TransactionDto> _validator;
 		public UpsertTransaction(ILogger<UpsertTransaction> log,
 								 ITransactionsRepository transactionsRepo,
-								 IWalletsRepository walletsRepo)
+								 IWalletsRepository walletsRepo,
+								 IAttachmentsRepository attachmentsRepo,
+								 IValidator<TransactionDto> validator)
 		{
 			_logger = log;
 			_transactionsRepo = transactionsRepo;
 			_walletsRepo = walletsRepo;
+			_attachmentsRepo = attachmentsRepo;
+			_validator = validator;
 		}
 
 		[FunctionName("UpsertTransaction")]
@@ -36,17 +47,72 @@ namespace AKExpensesTracker.Server.Functions
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(string), Description = "The OK response")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req)
-        {
-            _logger.LogInformation("C# HTTP trigger function processed a request.");
+		{
+			_logger.LogInformation("C# HTTP trigger function processed a request.");
 			_logger.LogInformation("Upsert wallet started");
 			var userId = "userId"; // TODO: Fetch it from the access token 
 
-			// Read the string from the body (JSON)
 			var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-			// Deserialize the string to WalletDto object 
-			var data = JsonConvert.DeserializeObject<WalletDto>(requestBody);
+			var data = JsonConvert.DeserializeObject<TransactionDto>(requestBody);
 
-			// Random number generator
+			// Check if it's update or insert 
+			bool isUpdate = data.Id != null;
+
+			if (isUpdate)
+			{
+
+			}
+			else
+			{
+				var validationResult = _validator.Validate(data);
+				if (!validationResult.IsValid)
+				{
+					return new BadRequestObjectResult(new ApiErrorResponse("Invalid input", validationResult.Errors.Select(x => x.ErrorMessage)));
+				}
+
+				// Check if there is attachments 
+				IEnumerable<Attachment> attachments = null;
+				if (data.Attachments != null && data.Attachments.Length > 0)
+				{
+					attachments = await _attachmentsRepo.GetByURLsAsync(data.Attachments);
+					if (attachments.Count() != data.Attachments.Distinct().Count())
+						return new BadRequestObjectResult(new ApiErrorResponse("Attachment is wrong"));
+				}
+
+				var wallet = await _walletsRepo.GetByIdAsync(data.WalletId, userId);
+				if (wallet == null)
+					return new BadRequestObjectResult(new ApiErrorResponse("Wallet not found"));
+
+				// Check the amount 
+				var amountToAdd = data.IsIncome ? data.Amount : -data.Amount;
+
+				// Create the transaction
+				var transaction = Transaction.Create(userId,
+													 data.Amount,
+													 wallet.Id,
+													 data.Category,
+													 data.IsIncome,
+													 data.Description,
+													 data.Tags,
+													 attachments?.Select(a => a.Url).ToArray());
+
+				// Add the transaction to the database
+				await _transactionsRepo.CreateAsync(transaction);
+
+				// Update the wallet balance
+				wallet.Balance += amountToAdd;
+				await _walletsRepo.UpdateAsync(wallet);
+
+				data.Id = transaction.Id;
+				return new OkObjectResult(new ApiSuccessResponse<TransactionDto>("Transaction added successfully", data));
+			}
+
+
+			return new OkResult();
+		}
+
+		private async Task AddRandomTransactions(string userId)
+		{
 			var rand = new Random();
 
 			// Available categories and tags to choose from
@@ -89,10 +155,7 @@ namespace AKExpensesTracker.Server.Functions
 				wallet.Balance += amountToAdd;
 				await _walletsRepo.UpdateAsync(wallet);
 			}
-
-	
-			return new OkResult();
-        }
-    }
+		}
+	}
 }
 
