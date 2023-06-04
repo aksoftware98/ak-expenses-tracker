@@ -32,10 +32,10 @@ namespace AKExpensesTracker.Server.Data.Repositories
 			if (urls == null || !urls.Any())
 				throw new ArgumentNullException(nameof(urls));
 
-			var queryText = $"SELECT * FROM c WHERE c.url in ('{urls[0]}')";
-			//var urlsAsString = $"'{string.Join("','", urls)}'";
-			var query = new QueryDefinition(queryText);
-				//.WithParameter("@urls", urlsAsString); 
+			var queryText = $"SELECT * FROM c WHERE c.url in (@urls)";
+			var urlsAsString = $"{string.Join("','", urls)}";
+			var query = new QueryDefinition(queryText)
+				.WithParameter("@urls", urlsAsString);
 
 			var container = _db.GetContainer(DATABASE_NAME, CONTAINER_NAME);
 			
