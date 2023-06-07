@@ -7,5 +7,10 @@
         Task<IEnumerable<Attachment>> GetUnusedAttachmentsAsync(int hours);
 
 		Task DeleteAsync(string id, string uploadedByUserId);
+
+		Task<IEnumerable<Attachment>> GetByURLsAsync(string[] urls);
+
+		Task DeleteBatchAsync(IEnumerable<Attachment> attachments); 
+
 	}
 }

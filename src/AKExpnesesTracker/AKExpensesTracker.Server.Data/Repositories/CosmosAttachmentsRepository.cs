@@ -27,6 +27,26 @@ namespace AKExpensesTracker.Server.Data.Repositories
 			await container.CreateItemAsync(attachment);
 		}
 
+		public async Task<IEnumerable<Attachment>> GetByURLsAsync(string[] urls)
+		{
+			if (urls != null && urls.Any())
+				throw new ArgumentNullException(nameof(urls));
+			// SELECT * FROM c WHERE c.url in ('https://l....jpg', '')
+			var urlsAsString = string.Join(",", urls.Select(x => $"'{x}'"));
+			var queryText = $"SELECT * FROM c WHERE c.url in (@urls)"; 
+			var query = new QueryDefinition(queryText)
+								.WithParameter("@urls", urlsAsString);
+
+			var container = _db.GetContainer(DATABASE_NAME, CONTAINER_NAME);
+			var iterator = container.GetItemQueryIterator<Attachment>(query); 
+			var result = await iterator.ReadNextAsync();
+
+			if (result.Any())
+				return result.Resource; 
+
+			return Enumerable.Empty<Attachment>();
+		}
+
 		public async Task<IEnumerable<Attachment>> GetUnusedAttachmentsAsync(int hours)
 		{
 			var queryText = $"SELECT * FROM c WHERE DateTimeDiff('hour', c.uploadingDate, GetCurrentDateTime()) > @hours";
@@ -62,6 +82,25 @@ namespace AKExpensesTracker.Server.Data.Repositories
 			
 			var container = _db.GetContainer(DATABASE_NAME, CONTAINER_NAME);
 			await container.DeleteItemAsync<Attachment>(id, new PartitionKey(uploadedByUserId));
+		}
+
+		public async Task DeleteBatchAsync(IEnumerable<Attachment> attachments)
+		{
+			if (attachments == null)
+				throw new ArgumentNullException(nameof(attachments));
+
+			if (!attachments.Any())
+				return; 
+
+			var container = _db.GetContainer(DATABASE_NAME, CONTAINER_NAME);
+			var tasks = new List<Task>();
+			foreach (var attachment in attachments)
+			{
+				var deleteTask = container.DeleteItemAsync<Attachment>(attachment.Id, new PartitionKey(attachment.UploadedByUserId));
+				tasks.Add(deleteTask);
+			}
+
+			await Task.WhenAll(tasks);
 		}
 	}
 }
