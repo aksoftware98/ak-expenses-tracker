@@ -78,7 +78,7 @@ public class CosmosTransactionsRepository : ITransactionsRepository
 
         var container = _db.GetContainer(DATABASE_NAME, CONTAINER_NAME);
 
-        await container.DeleteItemAsync<Transaction>(transaction.Id, new PartitionKey(transaction.UserId));
+        await container.DeleteItemAsync<Transaction>(transaction.Id, new PartitionKey(transaction.UserIdYear));
     }
 	#endregion 
 
