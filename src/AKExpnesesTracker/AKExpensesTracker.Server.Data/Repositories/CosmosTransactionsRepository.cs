@@ -51,6 +51,35 @@ public class CosmosTransactionsRepository : ITransactionsRepository
 
 		await container.CreateItemAsync(transaction);
 	}
+
 	#endregion
+
+	#region Get By Id  
+    public async Task<Transaction> GetByIdAsync(string id, string userId, int year)
+    {
+        if (id == null)
+            throw new ArgumentNullException(nameof(id));
+        if (userId == null)
+			throw new ArgumentNullException(nameof(userId));    
+
+        var container = _db.GetContainer(DATABASE_NAME, CONTAINER_NAME);
+
+        var item = await container.ReadItemAsync<Transaction>(id, new PartitionKey($"{userId}_{year}"));
+
+        return item;
+    }
+	#endregion
+
+	#region Delete 
+    public async Task DeleteAsync(Transaction transaction)
+    {
+        if (transaction == null)
+            throw new ArgumentNullException(nameof(transaction));
+
+        var container = _db.GetContainer(DATABASE_NAME, CONTAINER_NAME);
+
+        await container.DeleteItemAsync<Transaction>(transaction.Id, new PartitionKey(transaction.UserId));
+    }
+	#endregion 
 
 }

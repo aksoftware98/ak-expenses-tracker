@@ -15,7 +15,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AKExpensesTracker.Server.Fu
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HttpEndpoints", "HttpEndpoints", "{7F0FEF94-736A-4DD1-A27F-279B0E196D38}"
 	ProjectSection(SolutionItems) = preProject
-		TransactionsHttpRequests.http = TransactionsHttpRequests.http
 		WalletsHttpRequest.http = WalletsHttpRequest.http
 	EndProjectSection
 EndProject
