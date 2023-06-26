@@ -29,10 +29,13 @@ namespace AKExpensesTracker.Server.Data.Repositories
 
 		public async Task<IEnumerable<Attachment>> GetByURLsAsync(string[] urls)
 		{
-			if (urls != null && urls.Any())
+			if (urls == null)
 				throw new ArgumentNullException(nameof(urls));
+			if (!urls.Any())
+				return Enumerable.Empty<Attachment>();
+
 			// SELECT * FROM c WHERE c.url in ('https://l....jpg', '')
-			var urlsAsString = string.Join(",", urls.Select(x => $"'{x}'"));
+			var urlsAsString = string.Join(",", urls.Select(x => $"{x}"));
 			var queryText = $"SELECT * FROM c WHERE c.url in (@urls)"; 
 			var query = new QueryDefinition(queryText)
 								.WithParameter("@urls", urlsAsString);

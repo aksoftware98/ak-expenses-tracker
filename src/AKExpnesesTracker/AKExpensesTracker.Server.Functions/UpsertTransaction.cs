@@ -90,6 +90,7 @@ namespace AKExpensesTracker.Server.Functions
 					attachments = await _attachmentsRepo.GetByURLsAsync(data.Attachments);
 					if (data.Attachments.Distinct().Count() != attachments.Count())
 						return new BadRequestObjectResult(new ApiErrorResponse("Invalid attachments"));
+					await _attachmentsRepo.DeleteBatchAsync(attachments);
 				}
 
 				var transaction = Transaction.Create(wallet.Id,

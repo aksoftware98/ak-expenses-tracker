@@ -42,5 +42,18 @@ namespace AKExpensesTracker.Server.Data.Repositories
 
 			await _container.ReplaceItemAsync(transaction, transaction.Id);
 		}
+
+		public async Task<Transaction> GetByIdAsync(string id, string userId, int year)
+		{
+			if (string.IsNullOrWhiteSpace(id))
+				throw new ArgumentNullException(nameof(id));
+
+			if (string.IsNullOrWhiteSpace(userId))
+				throw new ArgumentNullException(nameof(userId));
+			
+			var partitionKeyValue = $"{userId}-{year}";
+			var result = await _container.ReadItemAsync<Transaction>(id, new PartitionKey(partitionKeyValue));
+			return result.Resource;
+		}
 	}
 }
