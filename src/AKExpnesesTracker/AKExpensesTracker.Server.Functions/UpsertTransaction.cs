@@ -68,6 +68,8 @@ namespace AKExpensesTracker.Server.Functions
 				if (transaction == null)
 					return new NotFoundResult();
 
+				var wallet = await _walletsRepo.GetByIdAsync(transaction.WalletId, userId);
+
 				var existingAttachments = transaction.Attachments;
 				var newAttachments = data.Attachments;
 
@@ -99,8 +101,11 @@ namespace AKExpensesTracker.Server.Functions
 				}
 
 				// Update the transaction 500
-				var amountToModify = transaction.IsIncome ? -transaction.Amount : transaction.Amount;
-				
+				var amountToModify = data.IsIncome ? data.Amount : -data.Amount;
+				var existingAmount = transaction.IsIncome ? transaction.Amount : -transaction.Amount;
+
+				var difference = existingAmount - amountToModify;
+
 				transaction.Update(data.Amount,
 								   data.Category,
 								   data.IsIncome,
