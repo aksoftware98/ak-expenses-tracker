@@ -63,10 +63,16 @@ public class CosmosTransactionsRepository : ITransactionsRepository
 			throw new ArgumentNullException(nameof(userId));    
 
         var container = _db.GetContainer(DATABASE_NAME, CONTAINER_NAME);
-
-        var item = await container.ReadItemAsync<Transaction>(id, new PartitionKey($"{userId}_{year}"));
-
-        return item;
+        try
+        {
+			var item = await container.ReadItemAsync<Transaction>(id, new PartitionKey($"{userId}_{year}"));
+			return item;
+		}
+        catch (Exception ex)
+        {
+            throw;
+        }
+       
     }
 	#endregion
 
