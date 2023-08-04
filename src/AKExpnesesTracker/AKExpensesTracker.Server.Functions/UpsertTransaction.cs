@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using AKExpensesTracker.Server.Data.Interfaces;
 using AKExpensesTracker.Server.Data.Models;
+using AKExpensesTracker.Server.Functions.Services;
 using AKExpensesTracker.Shared.DTOs;
 using AKExpensesTracker.Shared.Responses;
 using FluentValidation;
@@ -28,19 +29,22 @@ namespace AKExpensesTracker.Server.Functions
 		private readonly IAttachmentsRepository _attachmentsRepo;
 		private readonly ITransactionsRepository _transactionsRepo;
 		private readonly IWalletsRepository _walletsRepo;
+		private readonly IStorageService _storageService;
 		private readonly IValidator<TransactionDto> _validator;
 
 		public UpsertTransaction(ILogger<UpsertTransaction> log,
 								 IAttachmentsRepository attachmentsRepo,
 								 ITransactionsRepository transactionsRepo,
 								 IValidator<TransactionDto> validator,
-								 IWalletsRepository walletsRepo)
+								 IWalletsRepository walletsRepo,
+								 IStorageService storageService)
 		{
 			_logger = log;
 			_attachmentsRepo = attachmentsRepo;
 			_transactionsRepo = transactionsRepo;
 			_validator = validator;
 			_walletsRepo = walletsRepo;
+			_storageService = storageService;
 		}
 
 		[FunctionName("UpsertTransaction")]
@@ -61,22 +65,78 @@ namespace AKExpensesTracker.Server.Functions
 			});
 			var isUpdate = !string.IsNullOrWhiteSpace(data.Id);
 
+			var validationResult = _validator.Validate(data);
+			if (!validationResult.IsValid)
+			{
+				return new BadRequestObjectResult(new ApiErrorResponse("Invalid data",
+																		validationResult
+																			.Errors
+																			.Select(e => e.ErrorMessage)));
+			}
+
 			if (isUpdate)
 			{
-				// TODO: Implement the update logic
-				return new OkResult();
+				// TODO: Add the creation date to the TransactionDto
+				var transaction = await _transactionsRepo.GetByIdAsync(data.Id, userId, 2023);
+				if (transaction == null)
+					return new NotFoundResult(); // 404
+
+				var wallet = await _walletsRepo.GetByIdAsync(transaction.WalletId, userId);
+				if (wallet == null || wallet.Id != data.WalletId)
+					return new BadRequestObjectResult(new ApiErrorResponse("Wallet not found"));
+
+				// Detect and add new attachments
+				IEnumerable<Attachment> newAttachments = Enumerable.Empty<Attachment>();
+				if (data.Attachments != null && data.Attachments.Any())
+				{
+					newAttachments = await _attachmentsRepo.GetByURLsAsync(data.Attachments);
+					if (data.Attachments.Distinct().Count() != newAttachments.Count())
+						return new BadRequestObjectResult(new ApiErrorResponse("Invalid attachments"));
+				}
+
+				// Detect and delete attachments that are not in the new list
+				IEnumerable<string> urlsToDelete = Enumerable.Empty<string>();
+				if (transaction.Attachments != null && transaction.Attachments.Any())
+				{
+					urlsToDelete = transaction.Attachments.Except(data.Attachments);
+				}
+
+				// Execute the insert 
+				if (newAttachments.Any())
+				{
+					await _attachmentsRepo.DeleteBatchAsync(newAttachments);
+				}
+
+				// Execute the delete attachments
+				if ((urlsToDelete.Any()))
+				{
+					foreach (var item in urlsToDelete)
+					{
+						await _storageService.DeleteFileAsync(item);
+					}
+				}
+
+				// Update the balance 
+				var existingAmount = transaction.IsIncome ? transaction.Amount : -transaction.Amount;  // 1000
+				var newAmount = data.IsIncome ? data.Amount : -data.Amount; // 1200
+				var amountToAdd = newAmount - existingAmount; // 1200 - 1000 = 200
+
+				if (amountToAdd != 0)
+					await _walletsRepo.UpdateBalanceAsync(wallet.Id, userId, amountToAdd);
+
+				transaction.Update(data.IsIncome,
+								   data.Amount,
+								   data.Category,
+								   data.Description,
+								   data.Tags,
+								   data.Attachments);
+
+				await _transactionsRepo.UpdateAsync(transaction);
+
+				return new OkObjectResult(new ApiSuccessResponse<TransactionDto>("Transaction updated", data));
 			}
 			else
 			{
-				var validationResult = _validator.Validate(data);
-				if (!validationResult.IsValid)
-				{
-					return new BadRequestObjectResult(new ApiErrorResponse("Invalid data",
-																			validationResult
-																				.Errors
-																				.Select(e => e.ErrorMessage)));
-				}
-
 				var wallet = await _walletsRepo.GetByIdAsync(data.WalletId, userId);
 				if (wallet == null)
 				{
@@ -84,7 +144,7 @@ namespace AKExpensesTracker.Server.Functions
 				}
 				// https://...
 				// https://
-				IEnumerable<Attachment> attachments = null; 
+				IEnumerable<Attachment> attachments = null;
 				if (data.Attachments != null && data.Attachments.Any())
 				{
 					attachments = await _attachmentsRepo.GetByURLsAsync(data.Attachments);
@@ -103,10 +163,10 @@ namespace AKExpensesTracker.Server.Functions
 													 attachments?.Select(a => a.Url).ToArray());
 
 				await _transactionsRepo.CreateAsync(transaction);
-				
+
 				var amountToAdd = data.IsIncome ? data.Amount : -data.Amount;
 				await _walletsRepo.UpdateBalanceAsync(wallet.Id, userId, amountToAdd);
-				
+
 				data.Id = transaction.Id;
 
 				return new OkObjectResult(new ApiSuccessResponse<TransactionDto>("Transaction created", data));

@@ -12,7 +12,8 @@ public class TransactionDto
     public TransactionDto()
     {
 		Category = "Other";
-		WalletId = string.Empty; 
+		WalletId = string.Empty;
+		Attachments = new string[0];
     }
 
     public string? Id { get; set; }
