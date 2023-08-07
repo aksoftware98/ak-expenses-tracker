@@ -9,5 +9,7 @@
         Task CreateAsync(Transaction transaction);
 
         Task UpdateAsync(Transaction transaction);
+
+        Task<IEnumerable<Transaction>> ListByUserIdAsync(string userId, int year, IEnumerable<string> walletIds, DateTime? minDate = null, DateTime? maxDate = null);
     }
 }
