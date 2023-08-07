@@ -1,4 +1,6 @@
-﻿namespace AKExpensesTracker.Server.Data.Repositories;
+﻿using System.Text;
+
+namespace AKExpensesTracker.Server.Data.Repositories;
 
 public class CosmosTransactionsRepository : ITransactionsRepository
 {
@@ -13,14 +15,30 @@ public class CosmosTransactionsRepository : ITransactionsRepository
     }
 
     #region List
-    public async Task<IEnumerable<Transaction>> ListByUserIdAsync(string userId)
+    public async Task<IEnumerable<Transaction>> ListByUserIdAsync(string userId, int year, DateTime? minDate, DateTime? maxDate, IEnumerable<string> walletIds, string? pageToken = null)
     {
         if (string.IsNullOrWhiteSpace(userId))
             throw new ArgumentNullException(nameof(userId));
+        if (year > 9999 || year < 1000)
+			throw new ArgumentOutOfRangeException(nameof(year));
+        if (walletIds == null || !walletIds.Any())
+            throw new ArgumentNullException(nameof(walletIds));
 
-        var queryText = $"SELECT * FROM c WHERE c.userId = @userId";
-        var query = new QueryDefinition(queryText)
-                            .WithParameter("@userId", userId);
+        var stringBuilder = new StringBuilder();  
+        stringBuilder.Append("SELECT * FROM c WHERE c.userIdYear = @userIdYear");
+        if (minDate != null)
+            stringBuilder.Append(" AND c.date >= @minDate");
+        if (maxDate != null)
+            stringBuilder.Append(" AND c.date <= @maxDate");
+        stringBuilder.Append(" AND c.walletId IN (@walletIds)");
+
+        var query = new QueryDefinition(stringBuilder.ToString())
+                            .WithParameter("@userIdYear", $"{userId}_{year}");
+        if (minDate != null)
+			query.WithParameter("@minDate", minDate);
+        if (maxDate != null)
+            query.WithParameter("@maxDate", maxDate);
+        query.WithParameter("@walletIds", string.Join(",", walletIds));
 
         var container = _db.GetContainer(DATABASE_NAME, CONTAINER_NAME);
 
