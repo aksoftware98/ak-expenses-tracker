@@ -4,9 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using AKExpensesTracker.Server.Data.Interfaces;
 using AKExpensesTracker.Server.Functions.Services;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
+using Microsoft.Azure.Functions.Worker;
 
 namespace AKExpensesTracker.Server.Functions
 {
@@ -23,7 +22,7 @@ namespace AKExpensesTracker.Server.Functions
 			_attachmentsRepo = attachmentsRepo;
 		}
 
-		[FunctionName("DeleteUnusedAttachments")]
+		[Function("DeleteUnusedAttachments")]
 		public async Task Run([TimerTrigger("0 0 */6 * * *")] TimerInfo myTimer, ILogger log)
 		{
 			log.LogInformation($"Delete Unused Attachemnts triggerd at {DateTime.Now}");

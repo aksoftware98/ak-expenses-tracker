@@ -9,13 +9,10 @@ using AKExpensesTracker.Shared.DTOs;
 using AKExpensesTracker.Shared.Responses;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
+using Microsoft.Azure.Functions.Worker;
 
 namespace AKEpensesTracker.Server.Functions
 {
@@ -30,7 +27,7 @@ namespace AKEpensesTracker.Server.Functions
             _walletsRepo = walletsRepo;
         }
 
-        [FunctionName("ListWallets")]
+        [Function("ListWallets")]
         [OpenApiOperation(operationId: "Run", tags: new[] { "name" })]
         [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query)]
         [OpenApiParameter(name: "name", In = ParameterLocation.Query, Required = true, Type = typeof(string), Description = "The **Name** parameter")]

@@ -12,12 +12,10 @@ using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
+using Microsoft.Azure.Functions.Worker;
 
 namespace AKExpensesTracker.Server.Functions
 {
@@ -36,7 +34,7 @@ namespace AKExpensesTracker.Server.Functions
             _walletValidator = walletValidator;
         }
 
-        [FunctionName("UpsertWallet")]
+        [Function("UpsertWallet")]
         [OpenApiOperation(operationId: "Run", tags: new[] { "name" })]
         [OpenApiParameter(name: "name", In = ParameterLocation.Query, Required = true, Type = typeof(string), Description = "The **Name** parameter")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(string), Description = "The OK response")]
